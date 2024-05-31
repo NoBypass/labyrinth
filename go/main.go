@@ -11,20 +11,13 @@ import (
 const multiplier = 25
 const offset = 50
 
-var moves = []move{
-	{-1, 0},
-	{1, 0},
-	{0, -1},
-	{0, 1},
-}
-
 var (
 	gridSize int
 	size     int
 )
 
 func init() {
-	s := flag.Int("size", 10, "size of the labyrinth")
+	s := flag.Int("size", 15, "size of the labyrinth")
 	flag.Parse()
 	gridSize = *s
 	size = gridSize * multiplier
@@ -63,6 +56,8 @@ func main() {
 		}
 	}
 
+	fmt.Println("Grid generated in", time.Since(start).String())
+
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 
@@ -71,25 +66,28 @@ func main() {
 
 	beenTo := make(map[*field]struct{}, gridSize*gridSize)
 	fieldsWithOptions := make([]*field, 0, gridSize*gridSize)
+	var backtracks int
+	var loops int
 	pointer := grid[0][0]
 
 	for len(beenTo) < gridSize*gridSize {
+		loops++
 		available := make(map[direction]*field, 4)
 		availableDirs := make([]direction, 0, len(available))
 
-		for i, m := range moves {
-			newX, newY := pointer.x+m.dx, pointer.y+m.dy
-			if newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize {
-				if _, hasBeenTo := beenTo[grid[newY][newX]]; hasBeenTo {
-					continue
+		for i := range direction(4) {
+			potentialPointer := pointer.move(grid, i)
+			if potentialPointer != nil {
+				if _, hasBeenTo := beenTo[potentialPointer]; !hasBeenTo {
+					available[i] = potentialPointer
+					availableDirs = append(availableDirs, i)
 				}
-				available[direction(i)] = grid[newY][newX]
-				availableDirs = append(availableDirs, direction(i))
 			}
 		}
 
 		beenTo[pointer] = struct{}{}
 		if len(availableDirs) == 0 {
+			backtracks++
 			pointer = fieldsWithOptions[0]
 			fieldsWithOptions = fieldsWithOptions[1:]
 			continue
@@ -107,5 +105,7 @@ func main() {
 	}
 
 	dc.SavePNG("labyrinth.png")
-	fmt.Printf("\nTook %s\n", time.Since(start).String())
+	fmt.Println("Labyrinth generated in", time.Since(start).String())
+	fmt.Println("Backtracks:", backtracks)
+	fmt.Println("Loops:", loops)
 }

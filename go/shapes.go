@@ -18,10 +18,26 @@ const (
 	Right
 )
 
+var moves = []move{
+	{-1, 0},
+	{1, 0},
+	{0, -1},
+	{0, 1},
+}
+
 type line struct {
 	color          rgb
 	shown          bool
 	x1, y1, x2, y2 int
+}
+
+func (f *field) move(grid [][]*field, d direction) *field {
+	m := moves[d]
+	newX, newY := f.x+m.dx, f.y+m.dy
+	if newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize {
+		return grid[newY][newX]
+	}
+	return nil
 }
 
 type field struct {
