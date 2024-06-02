@@ -62,28 +62,25 @@ func newLine(d direction, f *field, colors ...rgb) *line {
 	l := &line{
 		shown: true,
 		color: c,
+		x1:    f.x,
+		y1:    f.y,
+		x2:    f.x,
+		y2:    f.y,
 	}
+
 	switch d {
 	case Up:
-		l.x1 = f.x
-		l.y1 = f.y - 1
-		l.x2 = f.x + 1
-		l.y2 = f.y - 1
+		l.y1 -= 1
+		l.x2 += 1
+		l.y2 -= 1
 	case Down:
-		l.x1 = f.x
-		l.y1 = f.y
-		l.x2 = f.x + 1
-		l.y2 = f.y
+		l.x2 += 1
 	case Left:
-		l.x1 = f.x
-		l.y1 = f.y
-		l.x2 = f.x
-		l.y2 = f.y - 1
+		l.y2 -= 1
 	case Right:
-		l.x1 = f.x + 1
-		l.y1 = f.y
-		l.x2 = f.x + 1
-		l.y2 = f.y - 1
+		l.x1 += 1
+		l.x2 += 1
+		l.y2 -= 1
 	}
 
 	l.y1 += 1
